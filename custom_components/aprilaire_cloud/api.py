@@ -177,12 +177,20 @@ class AprilaireCloud:
         """Current setpoints/mode/fan/hold config (the write-side mirror)."""
         return self._request("GET", f"{DEVICE_API}/{device_id}/settings").json()
 
-    def set_thermostat(self, device_id: str, zone: Any = "PZ1", **settings: Any) -> None:
-        """PATCH one or more of: heat=, cool= (Celsius), mode=, fan=."""
-        body = {f"thermostat{zone_url_key(zone)}": settings}
+    def _patch_settings(self, device_id: str, body: dict[str, Any]) -> None:
+        """PATCH the device settings document with a partial body."""
         self._request(
             "PATCH", f"{DEVICE_API}/{device_id}/settings", data=json.dumps(body)
         )
+
+    def set_thermostat(self, device_id: str, zone: Any = "PZ1", **settings: Any) -> None:
+        """PATCH one or more of: heat=, cool= (Celsius), mode=, fan=."""
+        self._patch_settings(device_id, {f"thermostat{zone_url_key(zone)}": settings})
+
+    def set_humidifier(self, device_id: str, **settings: Any) -> None:
+        """PATCH the humidifier: ``mode`` ('on'/'off') and/or ``autoModeSetpoint``
+        (the 1-7 dial level; the device reports 0 while the humidifier is off)."""
+        self._patch_settings(device_id, {"humidifier": settings})
 
     # -- history --------------------------------------------------------------
 

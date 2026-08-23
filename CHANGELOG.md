@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Humidifier controls: a **switch** (on/off) and a **number** for the 1–7 dial
+  level (Aprilaire's `autoModeSetpoint`). Setting a level turns the humidifier on
+  at that level; the device reports level 0 while off.
+
+### Changed
+- The humidifier running-state sensor is now a normal sensor (**Humidifier
+  status**) instead of a diagnostic entity, so it appears alongside the other
+  sensors.
+- Polls are now aligned to wall-clock multiples of the scan interval (e.g. on the
+  minute at `:00` for the default 60 s interval) instead of drifting to an
+  arbitrary offset.
+
 ## [0.1.0] - 2026-08-22
 
 ### Added

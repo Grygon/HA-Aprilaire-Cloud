@@ -88,8 +88,34 @@ async def test_sensors_and_binary_sensor(hass, setup_integration):
     await setup_integration()
     assert hass.states.get("sensor.whole_home_indoor_temperature").state == "21.0"
     assert hass.states.get("sensor.whole_home_indoor_humidity").state == "68"
-    assert hass.states.get("sensor.whole_home_humidifier").state == "inactive"
+    assert hass.states.get("sensor.whole_home_humidifier_status").state == "inactive"
     assert hass.states.get("binary_sensor.whole_home_fan").state == "off"
+
+
+async def test_humidifier_controls(hass, patched_cloud, setup_integration):
+    await setup_integration()
+
+    # Fixture humidifier is {"mode": "on", "autoModeSetpoint": 1}.
+    assert hass.states.get("switch.whole_home_humidifier").state == "on"
+    assert hass.states.get("number.whole_home_humidifier_level").state == "1"
+
+    # Setting a level turns the humidifier on at that level.
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {"entity_id": "number.whole_home_humidifier_level", "value": 4},
+        blocking=True,
+    )
+    patched_cloud.set_humidifier.assert_called_with(DEVICE_ID, mode="on", autoModeSetpoint=4)
+
+    # Turning the switch off sends mode=off.
+    await hass.services.async_call(
+        "switch",
+        "turn_off",
+        {"entity_id": "switch.whole_home_humidifier"},
+        blocking=True,
+    )
+    patched_cloud.set_humidifier.assert_called_with(DEVICE_ID, mode="off")
 
 
 async def test_fan_running_binary_sensor_true(hass, cloud_state, setup_integration):

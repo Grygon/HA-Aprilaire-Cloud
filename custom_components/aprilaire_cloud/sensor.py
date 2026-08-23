@@ -89,7 +89,6 @@ SENSORS: tuple[AprilaireSensorDescription, ...] = (
         translation_key="humidifier_status",
         device_class=SensorDeviceClass.ENUM,
         options=["active", "inactive"],
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda d: _humidifier(d).get("equipmentStatus"),
         exists_fn=lambda d: (d or {}).get("humidifier") is not None,
     ),

@@ -17,9 +17,9 @@ time without notice.
 | Module | Responsibility |
 |--------|----------------|
 | `api.py` | Blocking cloud client (auth, status/settings, control, runtime). Pure `requests` + `pycognito`, no HA imports. |
-| `coordinator.py` | `DataUpdateCoordinator` — polls every 60 s, runs the blocking client in an executor, handles optimistic writes + reconcile. |
+| `coordinator.py` | `DataUpdateCoordinator` — polls every 60 s (aligned to the wall-clock interval), runs the blocking client in an executor, handles optimistic writes + reconcile. |
 | `config_flow.py` | Email/password login, device discovery/picker, reauth. |
-| `climate.py` / `sensor.py` / `binary_sensor.py` | The user-facing entities. |
+| `climate.py` / `sensor.py` / `binary_sensor.py` / `switch.py` / `number.py` | The user-facing entities. |
 | `entity.py` | Shared `CoordinatorEntity` base + `DeviceInfo`. |
 
 Notes on behaviour worth knowing when hacking on it:
@@ -32,6 +32,16 @@ Notes on behaviour worth knowing when hacking on it:
   Entities report Celsius with a 0.5° step; the device rounds to its nearest
   native value.
 - Zone status keys are case-sensitive and uppercase (`PZ1`, `SZ2`, …).
+- The humidifier lives in the settings document as
+  `{"mode": "on"|"off", "autoModeSetpoint": 0-7}`. `mode` is the on/off toggle
+  (the switch); `autoModeSetpoint` is the 1–7 dial level (the number). The device
+  reports `autoModeSetpoint: 0` while the humidifier is off, so the number
+  surfaces that as unknown and turning the switch on re-enables at the last level
+  (or 1). Writes go through the same optimistic-reconcile path as the thermostat.
+- Polling is aligned to wall-clock multiples of the scan interval by overriding
+  the coordinator's `_schedule_refresh` (the base fires a fixed interval after the
+  previous run off the monotonic clock, which drifts off the clock). A 60 s
+  interval polls at `:00`, a 10 s interval at `:00/:10/:20`, etc.
 
 ## Dev box
 

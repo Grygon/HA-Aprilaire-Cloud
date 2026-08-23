@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import logging
+import time
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.helpers.event import async_call_later
+from homeassistant.helpers.event import async_call_later, async_track_point_in_utc_time
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import AprilaireAuthError, AprilaireCloud, AprilaireError
 from .const import (
@@ -107,11 +110,77 @@ class AprilaireDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self.hass, OPTIMISTIC_RECONCILE_DELAY, self._reconcile_job
         )
 
+    async def async_set_humidifier(self, **settings: Any) -> None:
+        """Push a humidifier change (``mode`` and/or ``autoModeSetpoint``),
+        optimistically reflect it, then reconcile once the device catches up.
+
+        Same write-lag as the thermostat: the device only reports the new value
+        on its next cloud check-in, so we show it immediately and re-poll later.
+        """
+        await self.hass.async_add_executor_job(
+            lambda: self.api.set_humidifier(self.device_id, **settings)
+        )
+        settings_doc = (self.data or {}).get("settings") or {}
+        if (humidifier := settings_doc.get("humidifier")) is not None:
+            humidifier.update(settings)
+            # Turning the humidifier off makes the device report a 0 level.
+            if settings.get("mode") == "off":
+                humidifier["autoModeSetpoint"] = 0
+            self.async_set_updated_data(self.data)
+        if self._reconcile_unsub is not None:
+            self._reconcile_unsub()  # drop any still-pending reconcile from a prior write
+        self._reconcile_unsub = async_call_later(
+            self.hass, OPTIMISTIC_RECONCILE_DELAY, self._reconcile_job
+        )
+
     @callback
     def _async_reconcile(self, _now) -> None:
         """Re-poll after a write so the optimistic value is confirmed/corrected."""
         self._reconcile_unsub = None
         self.hass.async_create_task(self.async_request_refresh())
+
+    @callback
+    def _schedule_refresh(self) -> None:
+        """Schedule the next poll snapped to a wall-clock multiple of the interval.
+
+        The base coordinator fires ``update_interval`` seconds after the previous
+        run off the monotonic clock, so polls drift to arbitrary wall-clock
+        offsets. We instead align to epoch-based boundaries, so a 60s interval
+        polls at :00 every minute, a 10s interval at :00/:10/:20, and so on.
+        """
+        if self._update_interval_seconds is None:
+            return
+        if self.config_entry and self.config_entry.pref_disable_polling:
+            return
+        self._async_unsub_refresh()
+        interval = self._update_interval_seconds
+        # Seconds until the next instant that is a whole multiple of the interval
+        # since the Unix epoch (which is itself aligned to :00). If we're exactly
+        # on a boundary, wait a full interval rather than firing immediately.
+        delay = interval - (time.time() % interval)
+        self._unsub_refresh = async_track_point_in_utc_time(
+            self.hass,
+            self._handle_aligned_refresh,
+            dt_util.utcnow() + timedelta(seconds=delay),
+        )
+
+    @callback
+    def _handle_aligned_refresh(self, _now) -> None:
+        """Fire a scheduled poll, mirroring the base coordinator's task creation."""
+        self._unsub_refresh = None
+        if self.config_entry:
+            self.config_entry.async_create_background_task(
+                self.hass,
+                self._handle_refresh_interval(),
+                name=f"{self.name} - refresh",
+                eager_start=True,
+            )
+        else:
+            self.hass.async_create_background_task(
+                self._handle_refresh_interval(),
+                name=f"{self.name} - refresh",
+                eager_start=True,
+            )
 
 
 def _zone_settings(data: dict[str, Any], zone: str) -> dict[str, Any] | None:

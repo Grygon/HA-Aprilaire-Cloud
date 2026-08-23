@@ -17,6 +17,9 @@ mobile app uses.
 - **Full thermostat control** — current temperature and humidity, heat / cool /
   auto / off modes, single or dual (heat + cool) setpoints, fan mode
   (auto / on / circulate), and live status (heating / cooling / fan / idle).
+- **Humidifier control** — if your system has a whole-home humidifier, turn it on
+  or off and set its 1–7 level, plus a sensor showing whether it's actively
+  running.
 - **Sensors** — indoor temperature and humidity, outdoor temperature (if your
   thermostat has an outdoor sensor), Wi-Fi signal, and humidifier status.
 - **Automatic history & statistics** — every sensor is tagged so Home Assistant's

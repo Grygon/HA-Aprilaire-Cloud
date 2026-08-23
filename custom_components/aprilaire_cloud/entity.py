@@ -49,6 +49,12 @@ class AprilaireEntity(CoordinatorEntity[AprilaireDataUpdateCoordinator]):
         settings = (self.coordinator.data or {}).get("settings") or {}
         return settings.get(f"thermostat{zone_url_key(self.coordinator.zone)}") or {}
 
+    @property
+    def _humidifier_settings(self) -> dict[str, Any]:
+        """The humidifier sub-dict of the settings payload ({mode, autoModeSetpoint})."""
+        settings = (self.coordinator.data or {}).get("settings") or {}
+        return settings.get("humidifier") or {}
+
 
 def sensor_reading(sensors: list[dict] | None, sensor_type: str) -> Any:
     """Pull a specific sensor's ``reading`` by its ``type`` from a sensor list."""

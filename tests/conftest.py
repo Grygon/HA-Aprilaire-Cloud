@@ -73,6 +73,7 @@ def mock_cloud(cloud_state, payloads) -> MagicMock:
 
     cloud.fetch_all.side_effect = fetch_all
     cloud.set_thermostat.return_value = None
+    cloud.set_humidifier.return_value = None
     return cloud
 
 

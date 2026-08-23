@@ -42,7 +42,7 @@
       "outdoor_temperature": { "name": "Outdoor temperature" },
       "wifi_signal": { "name": "Wi-Fi signal" },
       "humidifier_status": {
-        "name": "Humidifier",
+        "name": "Humidifier status",
         "state": {
           "active": "Active",
           "inactive": "Inactive"
@@ -51,6 +51,12 @@
     },
     "binary_sensor": {
       "fan_running": { "name": "Fan" }
+    },
+    "switch": {
+      "humidifier": { "name": "Humidifier" }
+    },
+    "number": {
+      "humidifier_level": { "name": "Humidifier level" }
     }
   }
 }

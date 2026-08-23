@@ -1,8 +1,9 @@
 """Sensor platform for Aprilaire (Cloud).
 
 These give the recorder clean, single-purpose entities to build history and
-long-term statistics from (indoor temp/humidity, outdoor temp, Wi-Fi signal,
-humidifier state) -- the climate entity's own attributes are not statistics-friendly.
+long-term statistics from (indoor temp/humidity, outdoor temp, Wi-Fi signal) --
+the climate entity's own attributes are not statistics-friendly. Equipment
+run states (fan/heating/cooling/humidifier) are binary sensors instead.
 """
 
 from __future__ import annotations
@@ -43,10 +44,6 @@ def _status(data: dict[str, Any]) -> dict[str, Any]:
     return (data or {}).get("status") or {}
 
 
-def _humidifier(data: dict[str, Any]) -> dict[str, Any]:
-    return (data or {}).get("humidifier") or {}
-
-
 SENSORS: tuple[AprilaireSensorDescription, ...] = (
     AprilaireSensorDescription(
         key="indoor_temperature",
@@ -83,14 +80,6 @@ SENSORS: tuple[AprilaireSensorDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
         value_fn=lambda d: _status(d).get("wifiRSSI"),
-    ),
-    AprilaireSensorDescription(
-        key="humidifier_status",
-        translation_key="humidifier_status",
-        device_class=SensorDeviceClass.ENUM,
-        options=["active", "inactive"],
-        value_fn=lambda d: _humidifier(d).get("equipmentStatus"),
-        exists_fn=lambda d: (d or {}).get("humidifier") is not None,
     ),
 )
 

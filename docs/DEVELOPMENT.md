@@ -32,6 +32,12 @@ Notes on behaviour worth knowing when hacking on it:
   Entities report Celsius with a 0.5° step; the device rounds to its nearest
   native value.
 - Zone status keys are case-sensitive and uppercase (`PZ1`, `SZ2`, …).
+- Each piece of equipment (fan, heating, cooling, humidifier) is its own
+  `running` binary sensor so it gets an independent on/off history and runtime.
+  The climate `hvac_action` can only report one state at a time (it hides the fan
+  while the compressor runs), so it isn't a substitute. Heating/cooling come from
+  the `heatingStatus` / `coolingStatus` fields (`"inactive"` vs. `"comp1"` etc.);
+  the humidifier from its `equipmentStatus`.
 - The humidifier lives in the settings document as
   `{"mode": "on"|"off", "autoModeSetpoint": 0-7}`. `mode` is the on/off toggle
   (the switch); `autoModeSetpoint` is the 1–7 dial level (the number). The device

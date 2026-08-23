@@ -18,14 +18,15 @@ mobile app uses.
   auto / off modes, single or dual (heat + cool) setpoints, fan mode
   (auto / on / circulate), and live status (heating / cooling / fan / idle).
 - **Humidifier control** — if your system has a whole-home humidifier, turn it on
-  or off and set its 1–7 level, plus a sensor showing whether it's actively
-  running.
+  or off and set its 1–7 level.
 - **Sensors** — indoor temperature and humidity, outdoor temperature (if your
-  thermostat has an outdoor sensor), Wi-Fi signal, and humidifier status.
+  thermostat has an outdoor sensor), and Wi-Fi signal.
 - **Automatic history & statistics** — every sensor is tagged so Home Assistant's
   **History** and long-term **Statistics** dashboards chart your temperature and
   humidity over time with no extra setup.
-- **Fan-running binary sensor** — great for automations.
+- **Equipment-running sensors** — separate on/off binary sensors for the fan,
+  heating, cooling, and humidifier, so each piece of equipment gets its own
+  history and runtime, and drives automations directly.
 
 ## Installation
 

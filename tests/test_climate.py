@@ -88,8 +88,13 @@ async def test_sensors_and_binary_sensor(hass, setup_integration):
     await setup_integration()
     assert hass.states.get("sensor.whole_home_indoor_temperature").state == "21.0"
     assert hass.states.get("sensor.whole_home_indoor_humidity").state == "68"
-    assert hass.states.get("sensor.whole_home_humidifier_status").state == "inactive"
+    # Equipment run states are RUNNING binary sensors. Fixture status.json has
+    # coolingStatus "comp1" (running), heatingStatus "inactive", isFanOn false,
+    # and the humidifier equipmentStatus "inactive".
     assert hass.states.get("binary_sensor.whole_home_fan").state == "off"
+    assert hass.states.get("binary_sensor.whole_home_heating").state == "off"
+    assert hass.states.get("binary_sensor.whole_home_cooling").state == "on"
+    assert hass.states.get("binary_sensor.whole_home_humidifier_status").state == "off"
 
 
 async def test_humidifier_controls(hass, patched_cloud, setup_integration):

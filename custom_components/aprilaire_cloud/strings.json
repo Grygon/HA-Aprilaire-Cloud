@@ -40,17 +40,13 @@
       "indoor_temperature": { "name": "Indoor temperature" },
       "indoor_humidity": { "name": "Indoor humidity" },
       "outdoor_temperature": { "name": "Outdoor temperature" },
-      "wifi_signal": { "name": "Wi-Fi signal" },
-      "humidifier_status": {
-        "name": "Humidifier status",
-        "state": {
-          "active": "Active",
-          "inactive": "Inactive"
-        }
-      }
+      "wifi_signal": { "name": "Wi-Fi signal" }
     },
     "binary_sensor": {
-      "fan_running": { "name": "Fan" }
+      "fan_running": { "name": "Fan" },
+      "heating": { "name": "Heating" },
+      "cooling": { "name": "Cooling" },
+      "humidifier_running": { "name": "Humidifier status" }
     },
     "switch": {
       "humidifier": { "name": "Humidifier" }

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Environment / secrets
+.env
+*.env
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# devbox: throwaway Home Assistant runtime state (credentials, DB, logs)
+devbox/config/

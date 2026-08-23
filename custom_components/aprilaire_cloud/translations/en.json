@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aprilaire account",
+        "description": "Sign in with the same email and password you use in the Aprilaire app.",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      },
+      "device": {
+        "title": "Choose thermostat",
+        "description": "Select which thermostat to add.",
+        "data": {
+          "device_id": "Thermostat"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate Aprilaire",
+        "description": "Enter the password for {email}.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "cannot_connect": "Could not reach the Aprilaire cloud. Try again.",
+      "no_devices": "No thermostats were found on this account.",
+      "unknown": "Unexpected error. Check the logs."
+    },
+    "abort": {
+      "already_configured": "This thermostat is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "indoor_temperature": { "name": "Indoor temperature" },
+      "indoor_humidity": { "name": "Indoor humidity" },
+      "outdoor_temperature": { "name": "Outdoor temperature" },
+      "wifi_signal": { "name": "Wi-Fi signal" },
+      "humidifier_status": {
+        "name": "Humidifier",
+        "state": {
+          "active": "Active",
+          "inactive": "Inactive"
+        }
+      }
+    },
+    "binary_sensor": {
+      "fan_running": { "name": "Fan" }
+    }
+  }
+}

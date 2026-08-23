@@ -38,6 +38,12 @@ Notes on behaviour worth knowing when hacking on it:
   while the compressor runs), so it isn't a substitute. Heating/cooling come from
   the `heatingStatus` / `coolingStatus` fields (`"inactive"` vs. `"comp1"` etc.);
   the humidifier from its `equipmentStatus`.
+- The `isFanOn` status field only reflects *independent* fan operation (fan set
+  to On or Circulate); it stays `false` during a heat/cool call even though the
+  blower physically runs. The fan binary sensor therefore reports "running" when
+  `isFanOn` **or** heating **or** cooling is active, so it tracks the blower
+  rather than just the standalone-fan flag. There is no dedicated blower field in
+  the status document.
 - The humidifier lives in the settings document as
   `{"mode": "on"|"off", "autoModeSetpoint": 0-7}`. `mode` is the on/off toggle
   (the switch); `autoModeSetpoint` is the 1–7 dial level (the number). The device

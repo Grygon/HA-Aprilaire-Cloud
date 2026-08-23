@@ -90,8 +90,9 @@ async def test_sensors_and_binary_sensor(hass, setup_integration):
     assert hass.states.get("sensor.whole_home_indoor_humidity").state == "68"
     # Equipment run states are RUNNING binary sensors. Fixture status.json has
     # coolingStatus "comp1" (running), heatingStatus "inactive", isFanOn false,
-    # and the humidifier equipmentStatus "inactive".
-    assert hass.states.get("binary_sensor.whole_home_fan").state == "off"
+    # and the humidifier equipmentStatus "inactive". The blower runs during a
+    # cool call even though isFanOn is false, so the fan sensor reads "on".
+    assert hass.states.get("binary_sensor.whole_home_fan").state == "on"
     assert hass.states.get("binary_sensor.whole_home_heating").state == "off"
     assert hass.states.get("binary_sensor.whole_home_cooling").state == "on"
     assert hass.states.get("binary_sensor.whole_home_humidifier_status").state == "off"
@@ -127,3 +128,13 @@ async def test_fan_running_binary_sensor_true(hass, cloud_state, setup_integrati
     cloud_state["status"]["isFanOn"] = True
     await setup_integration()
     assert hass.states.get("binary_sensor.whole_home_fan").state == "on"
+
+
+async def test_fan_running_off_when_all_equipment_idle(hass, cloud_state, setup_integration):
+    # Blower is off only when nothing is running: no independent fan and no
+    # heat/cool call driving it.
+    cloud_state["status"]["isFanOn"] = False
+    cloud_state["status"]["coolingStatus"] = "inactive"
+    cloud_state["status"]["heatingStatus"] = "inactive"
+    await setup_integration()
+    assert hass.states.get("binary_sensor.whole_home_fan").state == "off"

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-23
+
+### Fixed
+- Fan running binary sensor now reads "on" while heating or cooling is active.
+  The device's `isFanOn` flag only tracks the standalone fan (On/Circulate) and
+  stays false during a heat/cool call, so the sensor previously showed the fan
+  off while the blower was clearly running. It now reflects the blower by also
+  considering the heating/cooling equipment state.
+
 ## [0.1.0] - 2026-08-23
 
 First release — a simple, functional integration for cloud-only Wi-Fi Aprilaire
@@ -31,5 +40,6 @@ thermostats (verified against the **8920W**).
   by default) instead of drifting to an arbitrary offset.
 - Local dev box (`devbox/`) and a unit + HA-harness test suite.
 
-[Unreleased]: https://github.com/Grygon/HA-Aprilaire-Cloud/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Grygon/HA-Aprilaire-Cloud/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/Grygon/HA-Aprilaire-Cloud/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Grygon/HA-Aprilaire-Cloud/releases/tag/v0.1.0

@@ -50,12 +50,30 @@ def _equipment_running(status: Any) -> bool | None:
     return status != "inactive"
 
 
+def _fan_running(data: dict[str, Any]) -> bool | None:
+    """Whether the blower is actually moving air.
+
+    ``isFanOn`` only reflects *independent* fan operation (fan set to On or
+    Circulate). In a forced-air system the blower also runs during any heat or
+    cool call, but the device reports ``isFanOn: false`` in that case -- so OR in
+    the heating/cooling equipment states, otherwise the fan reads 'off' while the
+    compressor or furnace is clearly running."""
+    status = _status(data)
+    if not status:
+        return None
+    return bool(
+        status.get("isFanOn")
+        or _equipment_running(status.get("heatingStatus"))
+        or _equipment_running(status.get("coolingStatus"))
+    )
+
+
 BINARY_SENSORS: tuple[AprilaireBinarySensorDescription, ...] = (
     AprilaireBinarySensorDescription(
         key="fan_running",
         translation_key="fan_running",
         device_class=BinarySensorDeviceClass.RUNNING,
-        value_fn=lambda d: _status(d).get("isFanOn"),
+        value_fn=_fan_running,
     ),
     AprilaireBinarySensorDescription(
         key="heating",

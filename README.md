@@ -1,86 +1,74 @@
 # Aprilaire (Cloud) — Home Assistant integration
 
-A **cloud-polling** Home Assistant custom integration for legacy Wi-Fi Aprilaire
-thermostats (e.g. the **8920W**) that have **no local API** and only work through
-Aprilaire's cloud. It talks to the same backend the Aprilaire mobile app uses.
+Bring legacy Wi-Fi Aprilaire thermostats — like the **8920W** — into Home
+Assistant. These older models have **no local API** and only work through
+Aprilaire's cloud, so this integration talks to the same backend the Aprilaire
+mobile app uses.
 
-> If you have a newer Aprilaire *Home Automation* (8800-series) or *Zone Control*
-> (6000-series) thermostat, use the **built-in** [`aprilaire`](https://www.home-assistant.io/integrations/aprilaire/)
-> integration instead — it talks to the thermostat locally and is much better.
-> This project exists only for the older cloud-only models that the local
+> **Have a newer thermostat?** If yours is an Aprilaire *Home Automation*
+> (8800-series) or *Zone Control* (6000-series) model, use the **built-in**
+> [`aprilaire`](https://www.home-assistant.io/integrations/aprilaire/)
+> integration instead — it talks to the thermostat locally and is faster and more
+> reliable. This project exists only for the older cloud-only models the local
 > integration cannot reach.
 
-## What you get
+## Features
 
-- **Climate entity** — current temperature & humidity, heat/cool/auto/off modes,
-  single or dual (heat + cool) setpoints, fan mode (auto / on / circulate), and
-  live HVAC action (heating / cooling / fan / idle).
-- **Sensors** — indoor temperature, indoor humidity, outdoor temperature (if a
-  sensor is present), Wi-Fi signal, and humidifier status. All carry the right
-  `device_class`/`state_class`, so Home Assistant's **History** and **long-term
-  Statistics** give you the historical charts automatically.
-- **Binary sensor** — fan running.
-
-### About history
-
-Aprilaire's cloud keeps **no** server-side history for temperature, humidity, or
-fan state (only heating/cooling *runtime duration*). This integration instead
-lets Home Assistant's own recorder build history from the 60-second polls — which
-is what the HA History and Statistics dashboards are designed for.
+- **Full thermostat control** — current temperature and humidity, heat / cool /
+  auto / off modes, single or dual (heat + cool) setpoints, fan mode
+  (auto / on / circulate), and live status (heating / cooling / fan / idle).
+- **Sensors** — indoor temperature and humidity, outdoor temperature (if your
+  thermostat has an outdoor sensor), Wi-Fi signal, and humidifier status.
+- **Automatic history & statistics** — every sensor is tagged so Home Assistant's
+  **History** and long-term **Statistics** dashboards chart your temperature and
+  humidity over time with no extra setup.
+- **Fan-running binary sensor** — great for automations.
 
 ## Installation
 
-**HACS (custom repository):**
-1. HACS → ⋮ → *Custom repositories* → add this repo, category *Integration*.
+**HACS (recommended):**
+1. In HACS, open the ⋮ menu → *Custom repositories* and add this repository with
+   category *Integration*.
 2. Install **Aprilaire (Cloud)**, then restart Home Assistant.
 
 **Manual:**
-Copy `custom_components/aprilaire_cloud` into your HA `config/custom_components/`
-directory and restart.
+Copy `custom_components/aprilaire_cloud` into your Home Assistant
+`config/custom_components/` directory and restart.
 
 ## Setup
 
-*Settings → Devices & Services → Add Integration → Aprilaire (Cloud)*, then sign
-in with your Aprilaire app email and password. Thermostats on the account are
-discovered automatically; if you have more than one, you'll be asked which to add.
+Go to *Settings → Devices & Services → Add Integration*, search for
+**Aprilaire (Cloud)**, and sign in with the same email and password you use in
+the Aprilaire mobile app. Thermostats on your account are discovered
+automatically; if you have more than one, you'll be asked which to add.
 
-## How it works / provenance
+## Good to know
 
-The Aprilaire cloud API is undocumented. This integration was built by
-reverse-engineering the Android app and capturing live traffic:
+- **Small delay on changes.** The thermostat checks in with the cloud on its own
+  schedule, so a setpoint or mode change can take ~10–20 s to physically take
+  effect. Home Assistant shows your change immediately and confirms it on the
+  next check-in.
+- **History comes from Home Assistant.** Aprilaire's cloud keeps no server-side
+  history for temperature, humidity, or fan state, so this integration lets Home
+  Assistant's own recorder build the charts from its regular polls — exactly what
+  the History and Statistics dashboards are designed for.
+- **Cloud-only.** If Aprilaire's servers or your internet connection are down,
+  the thermostat is unreachable from Home Assistant.
+- **Tested hardware.** Developed and verified against the **8920W**. Other
+  cloud-only Aprilaire Wi-Fi thermostats on the same app backend are likely to
+  work, but haven't been confirmed — reports welcome.
+- **Unofficial.** This is an independent project, not affiliated with or endorsed
+  by Aprilaire. Aprilaire was not involved in its creation, and it relies on an
+  undocumented API that can change without notice.
 
-- **Auth:** AWS Cognito (`pycognito`).
-- **Control & status:** `device.aprilaire.io`.
-- **Runtime history:** `tsdb.aprilaire.io`.
+## Contributing & internals
 
-It is unofficial and not affiliated with Aprilaire. The API can change at any
-time without notice.
+Building, testing, the local dev box, and how the cloud API was reverse-engineered
+are documented in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Test details live
+in [`tests/README.md`](tests/README.md), release history in
+[`CHANGELOG.md`](CHANGELOG.md), and HACS publishing notes in
+[`docs/PUBLISHING.md`](docs/PUBLISHING.md).
 
-## Development
+## License
 
-A throwaway Home Assistant instance for testing lives in [`devbox/`](devbox/)
-(rootless podman). It copies the integration in, seeds a config entry from
-`../.env` (so it sets up headlessly — no clicking through the UI), and starts HA:
-
-```bash
-cd devbox
-./run.sh up        # sync + seed + start   -> http://localhost:8123
-./run.sh logs      # follow logs
-./run.sh restart   # re-sync code changes and restart
-./run.sh down      # stop & remove the container
-./run.sh reset     # wipe the config dir for a clean slate
-```
-
-The `devbox/config/` directory holds runtime state including credentials and is
-git-ignored. Open http://localhost:8123 and onboard (create a local account) to
-click around the UI; the thermostat is already set up from the seeded entry.
-
-## Notes & limitations
-
-- The thermostat polls the cloud on its own schedule, so a setpoint change can
-  take ~10–20 s to take physical effect. The UI updates optimistically and then
-  reconciles on the next poll.
-- The device is natively Fahrenheit at 0.5 °F resolution; Celsius setpoints are
-  rounded to the nearest native value by the device.
-- Cloud-only: if Aprilaire's servers or your internet are down, the thermostat
-  is unreachable from Home Assistant.
+See [LICENSE](LICENSE).

@@ -1,0 +1,61 @@
+name: Bug report
+description: Report a problem with the Aprilaire (Cloud) integration
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill out the sections
+        below so it can be reproduced. **Do not paste your Aprilaire password or
+        access tokens** — redact anything sensitive from logs.
+  - type: input
+    id: thermostat-model
+    attributes:
+      label: Thermostat model
+      description: e.g. 8920W
+      placeholder: 8920W
+    validations:
+      required: true
+  - type: input
+    id: integration-version
+    attributes:
+      label: Integration version
+      description: Version of Aprilaire (Cloud) installed (see HACS or manifest.json).
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant version
+      description: Settings → About
+      placeholder: 2026.8.3
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: >
+        Enable debug logging (see the README) and paste the relevant lines.
+        Redact credentials and tokens.
+      render: text
+    validations:
+      required: false

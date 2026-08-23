@@ -6,7 +6,7 @@ import logging
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -40,6 +40,14 @@ class AprilaireDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.device_info_raw: dict[str, Any] = {}
         # Learned on the first poll: skip the dehumidifier request if absent.
         self._has_dehumidifier = True
+        # Pending post-write reconcile timer (cancel_on_shutdown so it never
+        # lingers past unload, and re-scheduling cancels the previous one).
+        self._reconcile_unsub: CALLBACK_TYPE | None = None
+        self._reconcile_job = HassJob(
+            self._async_reconcile,
+            "aprilaire_cloud reconcile",
+            cancel_on_shutdown=True,
+        )
         super().__init__(
             hass,
             _LOGGER,
@@ -93,11 +101,16 @@ class AprilaireDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if self.data and (zone_settings := _zone_settings(self.data, self.zone)) is not None:
             zone_settings.update(settings)
             self.async_set_updated_data(self.data)
-        async_call_later(self.hass, OPTIMISTIC_RECONCILE_DELAY, self._async_reconcile)
+        if self._reconcile_unsub is not None:
+            self._reconcile_unsub()  # drop any still-pending reconcile from a prior write
+        self._reconcile_unsub = async_call_later(
+            self.hass, OPTIMISTIC_RECONCILE_DELAY, self._reconcile_job
+        )
 
     @callback
     def _async_reconcile(self, _now) -> None:
         """Re-poll after a write so the optimistic value is confirmed/corrected."""
+        self._reconcile_unsub = None
         self.hass.async_create_task(self.async_request_refresh())
 
 

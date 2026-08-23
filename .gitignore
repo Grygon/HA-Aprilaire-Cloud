@@ -20,3 +20,6 @@ venv/
 
 # devbox: throwaway Home Assistant runtime state (credentials, DB, logs)
 devbox/config/
+
+# devbox test pip cache
+devbox/.pipcache/

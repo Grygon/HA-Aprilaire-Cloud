@@ -1,0 +1,22 @@
+{
+  "deviceId": "B4825501968E",
+  "asOf": "2026-08-23T00:58:58.499Z",
+  "coolingStatus": "comp1",
+  "heatingStatus": "inactive",
+  "isFanOn": false,
+  "isProgressiveRecovery": false,
+  "zone": 1,
+  "wifiRSSI": -41,
+  "heatPumpFault": false,
+  "humSensors": [
+    { "type": "control", "reading": 68, "isControlling": true, "status": "reporting", "isWireless": false },
+    { "type": "internal", "reading": 68, "isControlling": true, "status": "reporting", "isWireless": false }
+  ],
+  "tempSensors": [
+    { "type": "control", "reading": 21.0, "isControlling": true, "status": "reporting", "isWireless": false },
+    { "type": "internal", "reading": 21.0, "isControlling": true, "status": "reporting", "isWireless": false },
+    { "type": "outdoor", "reading": 19.0, "isControlling": false, "status": "reporting", "isWireless": false }
+  ],
+  "alerts": { "lowTemp": false, "highTemp": false, "lowHum": false, "highHum": false },
+  "hvacService": { "needsService": false, "remaining": 100 }
+}

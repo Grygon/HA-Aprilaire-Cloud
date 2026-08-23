@@ -1,0 +1,17 @@
+{
+  "locations": [
+    {
+      "locationId": "fac39f5e-b5fe-46a0-9d4f-fd16d391132b",
+      "name": "Home",
+      "timeZone": "America/Chicago",
+      "rooms": [
+        {
+          "name": "Whole Home",
+          "devices": [
+            { "deviceId": "B4825501968E", "access": "manage", "zone": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

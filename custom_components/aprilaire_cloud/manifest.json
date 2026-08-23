@@ -1,7 +1,7 @@
 {
   "domain": "aprilaire_cloud",
   "name": "Aprilaire (Cloud)",
-  "codeowners": [],
+  "codeowners": ["@Grygon"],
   "config_flow": true,
   "documentation": "https://github.com/grygon/ha-aprilaire-cloud",
   "integration_type": "device",

@@ -1,0 +1,6 @@
+# Test harness for the aprilaire_cloud integration.
+# pytest-homeassistant-custom-component pulls in pytest, pytest-asyncio and a
+# Home Assistant test build. Pin it to the release matching the HA version you
+# test against (the dev-box image is currently HA 2026.8.x); leave unpinned to
+# let pip pick the newest compatible build.
+pytest-homeassistant-custom-component

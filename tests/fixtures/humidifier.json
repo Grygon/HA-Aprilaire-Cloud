@@ -1,0 +1,8 @@
+{
+  "deviceId": "B4825501968E",
+  "asOf": "2026-08-23T00:59:00.951Z",
+  "equipmentStatus": "inactive",
+  "humSensors": [],
+  "tempSensors": [],
+  "waterPanelService": { "remaining": 100, "needsService": false }
+}

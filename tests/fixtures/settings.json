@@ -1,0 +1,18 @@
+{
+  "deviceId": "B4825501968E",
+  "asOf": "2026-08-23T00:58:56.962Z",
+  "postalCode": "53717",
+  "humidifier": { "mode": "on", "autoModeSetpoint": 1 },
+  "thermostatPZ1": {
+    "room": "Whole Home",
+    "zone": 1,
+    "mode": "cool",
+    "fan": "on",
+    "cool": 21.5,
+    "heat": 20.0,
+    "scale": "F",
+    "heatBlast": false,
+    "hold": { "expire": "2025-06-03T16:30:00", "type": "permanent", "vacationHumidity": 255 },
+    "away": { "heat": 16.5, "fan": "auto", "cool": 29.5 }
+  }
+}

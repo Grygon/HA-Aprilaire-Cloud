@@ -8,6 +8,7 @@
 #   ./run.sh restart   # restart (picks up code changes after a `sync`)
 #   ./run.sh sync      # copy the integration into the config dir (no restart)
 #   ./run.sh shell     # shell inside the running container
+#   ./run.sh test      # run the pytest suite in a throwaway container
 #   ./run.sh reset     # stop and wipe the config dir (fresh HA + re-onboard)
 #
 # The UI is at http://localhost:8123 . On first visit you'll onboard (create a
@@ -62,6 +63,23 @@ case "${1:-up}" in
   down)    podman rm -f "$NAME" >/dev/null 2>&1 || true; echo "stopped $NAME" ;;
   restart) sync_integration; podman restart "$NAME"; echo "restarted $NAME" ;;
   sync)    sync_integration ;;
+  test)
+    # Run the pytest suite in a *throwaway* container (leaves the live dev box
+    # untouched). Mounts the repo read-write for pytest's cache and a pip cache
+    # so repeat runs are fast.
+    REPO="$(cd "$HERE/.." && pwd)"
+    mkdir -p "$HERE/.pipcache"
+    exec podman run --rm \
+      -v "$REPO:/src:Z" \
+      -v "$HERE/.pipcache:/root/.cache/pip:Z" \
+      -w /src \
+      --entrypoint sh \
+      "$IMAGE" -c '
+        set -e
+        python -m pip install --quiet --root-user-action=ignore -r requirements-test.txt
+        exec python -m pytest "$@"
+      ' sh "${@:2}"
+    ;;
   shell)   exec podman exec -it "$NAME" bash ;;
   reset)
     podman rm -f "$NAME" >/dev/null 2>&1 || true

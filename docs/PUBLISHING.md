@@ -83,10 +83,50 @@ override a core integration. This is a standalone integration for cloud-only
 models the core `aprilaire` integration doesn't cover, so that's fine — but the
 naming/domain is deliberately distinct (`aprilaire_cloud`) to avoid clashing.
 
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`):
+
+- **PATCH** (`0.1.0` → `0.1.1`) — bug fixes, no new behaviour.
+- **MINOR** (`0.1.0` → `0.2.0`) — new entities/features, backwards-compatible.
+- **MAJOR** (`0.x` → `1.0.0`) — breaking changes (renamed/removed entities,
+  changed unique IDs, config-entry migrations). While on `0.x`, breaking changes
+  may still land in a MINOR bump, but call them out loudly in the changelog.
+
+Three things must always agree for a release: the `version` in
+`manifest.json`, the git tag (`vX.Y.Z`), and the top dated section in
+`CHANGELOG.md`. HACS reads the **git tag** as the version it offers users, and
+hassfest checks the manifest version, so a mismatch means a broken or confusing
+release.
+
 ## Release checklist (per version)
 
-1. Bump `version` in `manifest.json`.
-2. Move items from **Unreleased** to a new dated section in `CHANGELOG.md`.
-3. Commit, push, confirm **Validate** + **Tests** actions are green.
-4. Create a GitHub Release with tag `vX.Y.Z` (matching the manifest).
-5. HACS users get the update on the next refresh.
+1. **Land all the changes** for the release on `main` first (or in a PR that's
+   merged). Nothing below should introduce new features.
+2. **Bump `version`** in `custom_components/aprilaire_cloud/manifest.json`
+   (e.g. `0.1.0` → `0.2.0`).
+3. **Update `CHANGELOG.md`:**
+   - Rename the `## [Unreleased]` section to `## [X.Y.Z] - YYYY-MM-DD` (today's
+     date) and leave a fresh empty `## [Unreleased]` above it.
+   - At the bottom, update the link references: point `[Unreleased]` at
+     `compare/vX.Y.Z...HEAD` and add a `[X.Y.Z]` link to
+     `releases/tag/vX.Y.Z`.
+4. **Test locally:** `cd devbox && ./run.sh test` — all green.
+5. **Commit and push** the manifest + changelog bump to `main`. Confirm the
+   **Validate** (HACS + hassfest) and **Tests** GitHub Actions pass.
+6. **Publish the GitHub Release** — a real release, not just a tag; the tag must
+   match the manifest:
+
+   ```bash
+   # Notes from the changelog section, or --generate-notes for auto notes.
+   gh release create vX.Y.Z --target main --title "vX.Y.Z" \
+     --notes "$(...)"   # e.g. paste the [X.Y.Z] changelog body
+   ```
+
+   Pushing a tag alone is **not** enough — HACS only picks up published Releases.
+7. HACS users get the update on their next refresh. Verify with
+   `gh release view vX.Y.Z` (`isDraft` / `isPrerelease` should both be `false`).
+
+> Pushing changes under `.github/workflows/` requires a token with the
+> `workflow` scope. If a push is rejected for that reason, run
+> `gh auth refresh -h github.com -s workflow` once and retry.

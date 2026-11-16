@@ -58,9 +58,10 @@ automatically; if you have more than one, you'll be asked which to add.
   the History and Statistics dashboards are designed for.
 - **Cloud-only.** If Aprilaire's servers or your internet connection are down,
   the thermostat is unreachable from Home Assistant.
-- **Tested hardware.** Developed and verified against the **8920W**. Other
-  cloud-only Aprilaire Wi-Fi thermostats on the same app backend are likely to
-  work, but haven't been confirmed — reports welcome.
+- **Tested hardware.** Developed and verified against the **8920W**, also
+  confirmed working with the **8910W**. Other cloud-only Aprilaire Wi-Fi
+  thermostats on the same app backend are likely to work, but haven't been
+  confirmed — reports welcome.
 - **Unofficial.** This is an independent project, not affiliated with or endorsed
   by Aprilaire. Aprilaire was not involved in its creation, and it relies on an
   undocumented API that can change without notice.
